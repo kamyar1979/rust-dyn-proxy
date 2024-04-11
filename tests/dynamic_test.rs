@@ -1,18 +1,28 @@
-use dynamic_proxy_types::*;
-use dynamic_proxy::dynamic_proxy;
+#[cfg(test)]
+mod tests {
+    use dynamic_proxy::dynamic_proxy;
+    use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
+    pub struct Interceptor;
 
-struct Interceptor;
+    impl DynamicProxy for Interceptor {
+        fn call<T>(self: &Self, invocation: InvocationInfo) -> usize  {
+            invocation.func_name.len()
+        }
+    }
 
-impl DynamicProxy for Interceptor {
-    fn call<T>(invocation: InvocationInfo) {
-        todo!()
+    #[dynamic_proxy(Interceptor)]
+    pub trait MyTrait {
+        fn add(self: Self, a: i32, b:i32) -> i32;
+    }
+
+    #[test]
+    fn function_name() {
+        let s = Interceptor {};
+        assert_eq!(s.add(6, 7), 3);
     }
 }
 
-#[dynamic_proxy(Interceptor)]
-trait MyTrait {
-    fn add(a: i32, b:i32) -> i32;
-}
+
 
 
