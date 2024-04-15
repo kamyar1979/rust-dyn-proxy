@@ -1,5 +1,5 @@
 // use std::any::Any;
-use syn::{Signature, TraitItemFn};
+// use syn::{Signature, TraitItemFn};
 
 pub struct InvocationInfo<'a> {
     // arguments: Vec<Box<dyn Any>>,
@@ -7,5 +7,5 @@ pub struct InvocationInfo<'a> {
 }
 
 pub trait DynamicProxy {
-    fn call<T>(self: &Self, invocation: InvocationInfo) -> usize;
+    fn call(self: &Self, invocation: InvocationInfo) -> usize;
 }

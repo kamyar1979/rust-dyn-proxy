@@ -1,15 +1,14 @@
-use proc_macro::{Ident, Span, TokenStream};
-use std::any::Any;
-use std::ops::Deref;
-use proc_macro2::extra::DelimSpan;
-use quote::{quote, TokenStreamExt, ToTokens};
-use syn::{Block, Expr, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Path, PathArguments, PathSegment, token, Visibility};
+use proc_macro::TokenStream;
+use quote::{quote, ToTokens};
+use syn::{Block, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Path, PathArguments, PathSegment, Stmt, token};
 use syn::punctuated::Punctuated;
-use syn::ReturnType::Type;
-use syn::Stmt::Expr;
-use syn::token::{Comma, Pub};
+use core::default::Default;
+use std::time::SystemTime;
+use syn::token::{Brace, Comma};
 use syn::TraitItem::Fn;
-use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
+use syn::Visibility::Inherited;
+use log::{info, warn};
+// use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
 extern crate proc_macro;
 
@@ -22,12 +21,31 @@ mod tests {
     }
 }
 
+fn setup_logger() -> Result<(), fern::InitError> {
+    fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "[{} {} {}] {}",
+                humantime::format_rfc3339_seconds(SystemTime::now()),
+                record.level(),
+                record.target(),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Warn)
+        .chain(std::io::stdout())
+        .chain(fern::log_file("output.log")?)
+        .apply()?;
+    Ok(())
+}
+
+
 fn type_name_of<T>(_: &T) -> &'static str {
     std::any::type_name::<T>()
 }
 
-fn create_function_call(method: &proc_macro2::Ident, args: Punctuated<Expr, Comma>) -> Expr {
-    let method_path = Expr::Path(ExprPath {
+fn create_function_call(method: &proc_macro2::Ident, args: Punctuated<syn::Expr, Comma>) -> syn::Expr {
+    let method_path = syn::Expr::Path(ExprPath {
         attrs: Vec::new(),
         qself: None,
         path: Path {
@@ -38,9 +56,9 @@ fn create_function_call(method: &proc_macro2::Ident, args: Punctuated<Expr, Comm
         },
     });
 
-    Expr::Call(ExprCall {
+    syn::Expr::Call(ExprCall {
         attrs: Vec::new(),
-        paren_token: token::Paren { span: DelimSpan::call_site() },
+        paren_token: token::Paren::default(),
         func: Box::new(method_path),
         args: args.clone(),
     })
@@ -55,7 +73,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
     let inp = input_trait.clone();
     let name = input_trait.ident;
     let imp = input_struct.first();
-
+    let _ = setup_logger();
 
     // let tr = input_trait.to_token_stream();
     let body = input_trait.items.iter().filter_map(|item| {
@@ -63,36 +81,42 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
             Fn(ti) => {
                 let func = ti.clone();
                 let signature = func.sig.clone();
-                let r = signature.output;
-                let return_type = match r {
-                    Type(_, t) => type_name_of(&t),
-                    _ => "Any"
-                };
                 let func_name = signature.ident.to_string();
-                let call_expr = create_function_call(&signature.ident,);
-                let ts: Option<proc_macro2::TokenStream> =
-                    Some(format!("self.call::<usize>(InvocationInfo {{func_name: {}}}) as {}",
-                                 func_name, return_type).parse().unwrap());
+                // let r = signature.output;
+                // let return_type = match r {
+                //     Type(_, t) => type_name_of(&t),
+                //     _ => "Any"
+                // };
+                let stmt: Stmt = syn::parse_quote! {
+                    self.call(InvocationInfo {func_name: #func_name}) as i32
+                };
                 Some(ImplItemFn {
                     attrs: func.attrs,
-                    vis: Visibility::Public(Pub::default()),
+                    vis: Inherited,
                     defaultness: None,
                     sig: func.sig,
                     block: Block {
-                        brace_token: token::Brace { span: DelimSpan::call_site() },
-                        stmts: vec![Expr(call_expr,
-                                         Some(token::Semi { spans: DelimSpan::call_site() }))],
+                        brace_token: Brace::default(),
+                        stmts: vec![stmt],
                     },
                 })
             }
             &_ => None
         }
-    }).collect::<proc_macro2::TokenStream>();
+    });
+    
+    let res = TokenStream::from(quote! {
+        #inp
+        impl #name for #imp {
+            #(#body)*
+        };
+    });
+    
+    warn!("res: {}", res);
 
     TokenStream::from(quote! {
         #inp
         impl #name for #imp {
-            #body
-        }
+        };
     })
 }
