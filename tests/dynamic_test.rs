@@ -15,7 +15,8 @@ mod tests {
 
     #[dynamic_proxy(Interceptor)]
     pub trait MyTrait {
-        fn add(self: Self, a: i32, b: i32) -> i32;
+        fn add(self, a: i32, b: i32) -> i32;
+        fn subtract(self, a: i32, b: i32) -> i32;
     }
 
     #[test]
@@ -23,6 +24,6 @@ mod tests {
         use crate::tests::Interceptor;
         // use crate::tests::MyTrait;
         let s = Interceptor {};
-        // assert_eq!(s.add(6, 7), 3);
+        assert_eq!(s.subtract(6, 7), 8);
     }
 }

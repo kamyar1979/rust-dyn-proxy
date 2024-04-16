@@ -87,9 +87,9 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                 //     Type(_, t) => type_name_of(&t),
                 //     _ => "Any"
                 // };
-                let stmt: Stmt = syn::parse_quote! {
-                    self.call(InvocationInfo {func_name: #func_name}) as i32
-                };
+                let stmt: Stmt = syn::parse_quote! (
+                    return self.call(InvocationInfo {func_name: #func_name}) as i32;
+                );
                 Some(ImplItemFn {
                     attrs: func.attrs,
                     vis: Inherited,
@@ -105,18 +105,10 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
         }
     });
     
-    let res = TokenStream::from(quote! {
-        #inp
-        impl #name for #imp {
-            #(#body)*
-        };
-    });
-    
-    warn!("res: {}", res);
-
     TokenStream::from(quote! {
         #inp
         impl #name for #imp {
-        };
+            #(#body)*
+        }
     })
 }
