@@ -94,10 +94,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                         func_name: #func_name,
                         return_value: None};
                     self.call(&mut invocation_info);
-                    return match invocation_info.return_value {
-                        Some(val) => val.downcast::<#return_type>().unwrap().deref().clone(),
-                        None => panic!("")
-                    };
+                    return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
                 );
                 Some(ImplItemFn {
                     attrs: func.attrs,
