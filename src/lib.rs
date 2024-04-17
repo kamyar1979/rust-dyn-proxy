@@ -1,13 +1,15 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{Block, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Path, PathArguments, PathSegment, Stmt, token};
+use syn::{Block, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Path, PathArguments, PathSegment, Stmt, token, Type};
 use syn::punctuated::Punctuated;
 use core::default::Default;
+use std::ops::Deref;
 use std::time::SystemTime;
 use syn::token::{Brace, Comma};
 use syn::TraitItem::Fn;
 use syn::Visibility::Inherited;
 use log::{info, warn};
+use proc_macro2::{Ident, Span};
 // use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
 extern crate proc_macro;
@@ -82,13 +84,20 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                 let func = ti.clone();
                 let signature = func.sig.clone();
                 let func_name = signature.ident.to_string();
-                // let r = signature.output;
-                // let return_type = match r {
-                //     Type(_, t) => type_name_of(&t),
-                //     _ => "Any"
-                // };
-                let stmt: Stmt = syn::parse_quote! (
-                    return self.call(InvocationInfo {func_name: #func_name}) as i32;
+                let r = signature.output;
+                let return_type = match r {
+                    syn::ReturnType::Type(_, t) => t.deref().to_token_stream(),
+                    _ => quote!(Any)
+                };
+                let stmt: Vec<Stmt> = syn::parse_quote! (
+                    let mut invocation_info = InvocationInfo {
+                        func_name: #func_name,
+                        return_value: None};
+                    self.call(&mut invocation_info);
+                    return match invocation_info.return_value {
+                        Some(val) => val.downcast::<#return_type>().unwrap().deref().clone(),
+                        None => panic!("")
+                    };
                 );
                 Some(ImplItemFn {
                     attrs: func.attrs,
@@ -97,7 +106,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     sig: func.sig,
                     block: Block {
                         brace_token: Brace::default(),
-                        stmts: vec![stmt],
+                        stmts: stmt,
                     },
                 })
             }
@@ -105,10 +114,13 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
         }
     });
     
-    TokenStream::from(quote! {
+    let res = TokenStream::from(quote! {
         #inp
         impl #name for #imp {
             #(#body)*
         }
-    })
+    });
+    
+    warn!("syn {}", res);
+    res
 }
