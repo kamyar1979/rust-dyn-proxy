@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{Block, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Path, PathArguments, PathSegment, Stmt, token, Type};
+use syn::{Block, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Pat, Path, PathArguments, PathSegment, Stmt, token, Type};
 use syn::punctuated::Punctuated;
 use core::default::Default;
 use std::ops::Deref;
@@ -8,8 +8,9 @@ use std::time::SystemTime;
 use syn::token::{Brace, Comma};
 use syn::TraitItem::Fn;
 use syn::Visibility::Inherited;
-use log::{info, warn};
+use log::{debug, info, warn};
 use proc_macro2::{Ident, Span};
+use syn::FnArg::{Receiver, Typed};
 // use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
 extern crate proc_macro;
@@ -84,6 +85,19 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                 let func = ti.clone();
                 let signature = func.sig.clone();
                 let func_name = signature.ident.to_string();
+                let args = signature.inputs.iter().filter_map(|a| {
+                    match a {
+                        Typed(t) => match t.clone().pat.deref() {
+                            Pat::Ident(id) => Some(id.clone().ident),
+                            _ => None
+                        },
+                        _ => None
+                    }
+                }).map(|i| {
+                    quote! {Box::new(#i)}
+                }).collect::<Vec<proc_macro2::TokenStream>>();
+                
+                // warn!("args: {:?}", args);
                 let r = signature.output;
                 let return_type = match r {
                     syn::ReturnType::Type(_, t) => t.deref().to_token_stream(),
@@ -92,10 +106,12 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                 let stmt: Vec<Stmt> = syn::parse_quote! (
                     let mut invocation_info = InvocationInfo {
                         func_name: #func_name,
+                        args: vec![#(#args),*],
                         return_value: None};
                     self.call(&mut invocation_info);
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
                 );
+                    warn!("stmt: {:?}", stmt.first().to_token_stream());
                 Some(ImplItemFn {
                     attrs: func.attrs,
                     vis: Inherited,

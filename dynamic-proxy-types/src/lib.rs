@@ -2,8 +2,8 @@ use std::any::Any;
 // use syn::{Signature, TraitItemFn};
 
 pub struct InvocationInfo<'a> {
-    // arguments: Vec<Box<dyn Any>>,
     pub func_name: &'a str,
+    pub args: Vec<Box<dyn Any>>,
     pub return_value: Option<Box<dyn Any>>
 }
 
