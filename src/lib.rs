@@ -93,10 +93,8 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                         },
                         _ => None
                     }
-                }).map(|i| {
-                    quote! {Box::new(#i)}
-                }).collect::<Vec<proc_macro2::TokenStream>>();
-                
+                });
+                let arg_names = args.clone().map(|i| i.to_string());
                 // warn!("args: {:?}", args);
                 let r = signature.output;
                 let return_type = match r {
@@ -106,7 +104,8 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                 let stmt: Vec<Stmt> = syn::parse_quote! (
                     let mut invocation_info = InvocationInfo {
                         func_name: #func_name,
-                        args: vec![#(#args),*],
+                        arg_names: vec![#(#arg_names),*],
+                        arg_values: vec![#(Box::new(#args)),*],
                         return_value: None};
                     self.call(&mut invocation_info);
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();

@@ -4,14 +4,17 @@ mod tests {
     use dynamic_proxy::dynamic_proxy;
     use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
     use std::ops::Deref;
+    use log::warn;
     // use crate::MyTrait;
 
     pub struct Interceptor;
 
     impl DynamicProxy for Interceptor {
         fn call(self: &Self, invocation: &mut InvocationInfo){
-            let a = invocation.args.get(0).unwrap().downcast_ref::<i32>().unwrap();
-            let b = invocation.args.get(1).unwrap().downcast_ref::<i32>().unwrap();
+            let a = invocation.arg_values.get(0).unwrap().downcast_ref::<i32>().unwrap();
+            let b = invocation.arg_values.get(1).unwrap().downcast_ref::<i32>().unwrap();
+            assert_eq!(invocation.arg_names.first().unwrap(), &"a");
+            assert_eq!(invocation.arg_names.last().unwrap(), &"b");
             let result: Box<dyn Any> = match invocation.func_name {
                 "add" => Box::new(a+b),
                 "subtract" => Box::new(a-b),
