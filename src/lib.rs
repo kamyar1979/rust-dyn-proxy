@@ -1,16 +1,15 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{Block, ExprCall, ExprPath, ImplItemFn, ItemTrait, Meta, parse_macro_input, Pat, Path, PathArguments, PathSegment, Stmt, token, Type};
+use syn::{Block, ImplItemFn, ItemTrait, Meta, parse_macro_input, Pat, Stmt, Type};
 use syn::punctuated::Punctuated;
 use core::default::Default;
 use std::ops::Deref;
 use std::time::SystemTime;
-use syn::token::{Brace, Comma};
+use syn::token::Brace;
 use syn::TraitItem::Fn;
 use syn::Visibility::Inherited;
-use log::{debug, info, warn};
-use proc_macro2::{Ident, Span};
-use syn::FnArg::{Receiver, Typed};
+use log::{info, warn};
+use syn::FnArg::Typed;
 // use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
 extern crate proc_macro;
@@ -42,31 +41,6 @@ fn setup_logger() -> Result<(), fern::InitError> {
     Ok(())
 }
 
-
-fn type_name_of<T>(_: &T) -> &'static str {
-    std::any::type_name::<T>()
-}
-
-fn create_function_call(method: &proc_macro2::Ident, args: Punctuated<syn::Expr, Comma>) -> syn::Expr {
-    let method_path = syn::Expr::Path(ExprPath {
-        attrs: Vec::new(),
-        qself: None,
-        path: Path {
-            leading_colon: None,
-            segments: Punctuated::from_iter(
-                vec![PathSegment { ident: method.clone(), arguments: PathArguments::None }]
-            ),
-        },
-    });
-
-    syn::Expr::Call(ExprCall {
-        attrs: Vec::new(),
-        paren_token: token::Paren::default(),
-        func: Box::new(method_path),
-        args: args.clone(),
-    })
-}
-
 #[proc_macro_attribute]
 // _metadata is argument provided to macro call and _input is code to which attribute like macro attaches
 pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream {
@@ -95,7 +69,6 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     }
                 });
                 let arg_names = args.clone().map(|i| i.to_string());
-                // warn!("args: {:?}", args);
                 let r = signature.output;
                 let return_type = match r {
                     syn::ReturnType::Type(_, t) => t.deref().to_token_stream(),
@@ -110,7 +83,6 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     self.call(&mut invocation_info);
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
                 );
-                    warn!("stmt: {:?}", stmt.first().to_token_stream());
                 Some(ImplItemFn {
                     attrs: func.attrs,
                     vis: Inherited,

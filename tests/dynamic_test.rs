@@ -4,7 +4,6 @@ mod tests {
     use dynamic_proxy::dynamic_proxy;
     use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
     use std::ops::Deref;
-    use log::warn;
     // use crate::MyTrait;
 
     pub struct Interceptor;
