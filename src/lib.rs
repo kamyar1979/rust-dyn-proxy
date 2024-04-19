@@ -8,7 +8,6 @@ use std::time::SystemTime;
 use syn::token::Brace;
 use syn::TraitItem::Fn;
 use syn::Visibility::Inherited;
-use log::{info, warn};
 use syn::FnArg::Typed;
 // use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
@@ -57,7 +56,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
         match item {
             Fn(ti) => {
                 let func = ti.clone();
-                let signature = func.sig.clone();
+                let signature = ti.sig.clone();
                 let func_name = signature.ident.to_string();
                 let args = signature.inputs.iter().filter_map(|a| {
                     match a {
@@ -79,7 +78,9 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                         func_name: #func_name,
                         arg_names: vec![#(#arg_names),*],
                         arg_values: vec![#(Box::new(#args)),*],
-                        return_value: None};
+                        return_type: TypeId::of::<#return_type>(),
+                        return_value: None
+                    };
                     self.call(&mut invocation_info);
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
                 );
@@ -98,13 +99,10 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
         }
     });
     
-    let res = TokenStream::from(quote! {
+    TokenStream::from(quote! {
         #inp
         impl #name for #imp {
             #(#body)*
         }
-    });
-    
-    warn!("syn {}", res);
-    res
+    })
 }

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use std::any::Any;
+    use std::any::{Any, TypeId};
     use dynamic_proxy::dynamic_proxy;
     use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
     use std::ops::Deref;
@@ -9,11 +9,13 @@ mod tests {
     pub struct Interceptor;
 
     impl DynamicProxy for Interceptor {
-        fn call(self: &Self, invocation: &mut InvocationInfo){
-            let a = invocation.arg_values.get(0).unwrap().downcast_ref::<i32>().unwrap();
-            let b = invocation.arg_values.get(1).unwrap().downcast_ref::<i32>().unwrap();
-            assert_eq!(invocation.arg_names.first().unwrap(), &"a");
-            assert_eq!(invocation.arg_names.last().unwrap(), &"b");
+        fn call(&self, invocation: &mut InvocationInfo){
+            let a = invocation.arg_values[0].downcast_ref::<i32>().unwrap();
+            let b = invocation.arg_values[1].downcast_ref::<i32>().unwrap();
+            assert_eq!(invocation.arg_names[0], "a");
+            assert_eq!(invocation.arg_names[1], "b");
+            assert_eq!(invocation.arg_values[1].deref().type_id(), TypeId::of::<i32>());
+            assert_eq!(invocation.return_type, TypeId::of::<i32>());
             let result: Box<dyn Any> = match invocation.func_name {
                 "add" => Box::new(a+b),
                 "subtract" => Box::new(a-b),
