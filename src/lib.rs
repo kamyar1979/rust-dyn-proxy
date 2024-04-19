@@ -46,8 +46,8 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
     let input_struct =
         parse_macro_input!(_metadata with Punctuated::<Meta, syn::Token![,]>::parse_terminated);
     let input_trait = parse_macro_input!(_input as ItemTrait);
-    let inp = input_trait.clone();
-    let name = input_trait.ident;
+    let inp = &input_trait;
+    let name = &input_trait.ident;
     let imp = input_struct.first();
     let _ = setup_logger();
 
@@ -55,8 +55,8 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
     let body = input_trait.items.iter().filter_map(|item| {
         match item {
             Fn(ti) => {
-                let func = ti.clone();
-                let signature = ti.sig.clone();
+                let func = ti.to_owned();
+                let signature = func.sig;
                 let func_name = signature.ident.to_string();
                 let args = signature.inputs.iter().filter_map(|a| {
                     match a {
@@ -68,7 +68,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     }
                 });
                 let arg_names = args.clone().map(|i| i.to_string());
-                let r = signature.output;
+                let r = &signature.output;
                 let return_type = match r {
                     syn::ReturnType::Type(_, t) => t.deref().to_token_stream(),
                     _ => quote!(Any)
@@ -88,7 +88,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     attrs: func.attrs,
                     vis: Inherited,
                     defaultness: None,
-                    sig: func.sig,
+                    sig: signature,
                     block: Block {
                         brace_token: Brace::default(),
                         stmts: stmt,
