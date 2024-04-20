@@ -8,6 +8,7 @@ proc-macro = true
 
 [dependencies.dynamic-proxy-types]
 path = "dynamic-proxy-types"
+version = "1.0.1"
 
 [dependencies]
 quote = "1"
