@@ -76,8 +76,8 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                 let stmt: Vec<Stmt> = syn::parse_quote! (
                     let mut invocation_info = InvocationInfo {
                         func_name: #func_name,
-                        arg_names: vec![#(#arg_names),*],
-                        arg_values: vec![#(Box::new(#args)),*],
+                        arg_names: &[#(#arg_names),*],
+                        arg_values: &[#(Box::new(#args)),*],
                         return_type: TypeId::of::<#return_type>(),
                         return_value: None
                     };
