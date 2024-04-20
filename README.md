@@ -42,7 +42,13 @@ to run some SQL functions. Normally we have to create a trait containing all the
 send parameters and parse the result. BUt the code contains too much boilerplate! We feel repeating the same
 code many times. What if we could create a general function to create the sql command, add the parameters and
 parse the result into Rust types? We need to call the function with the name of the SQL function and arguments
-and return back the SQL given result. HEre is where Dynamic Proxy shines.
+and return back the SQL given result. Here is where Dynamic Proxy shines.
+
+### Our implementation
+
+Since Rust is a very strict languages, we have nothing like Java/.NEt reflection, or Python double-underscore 'call' 
+method. The only way of implementing something similar is to use powerful procedural macros. They expand prior to 
+compilation into pure Rust code. We have implemented an attribute macro which gets the empty struct name. 
 
 
 ```rust
