@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{Block, ImplItemFn, ItemTrait, Meta, parse_macro_input, Pat, Stmt, Type};
+use syn::{Block, ImplItemFn, ItemTrait, Meta, parse_macro_input, Pat, Stmt};
 use syn::punctuated::Punctuated;
 use core::default::Default;
 use std::ops::Deref;
