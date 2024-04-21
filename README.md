@@ -36,19 +36,29 @@ impl Calculator for CalculatorImpl {
 }
 ```
 
-The trait and the implementation both live the same place. What if we need to invoke some code within another
-process or simply parse the function name and parameters and create the result? For instance, suppose we want
-to run some SQL functions. Normally we have to create a trait containing all the functions and write code to
-send parameters and parse the result. BUt the code contains too much boilerplate! We feel repeating the same
-code many times. What if we could create a general function to create the sql command, add the parameters and
-parse the result into Rust types? We need to call the function with the name of the SQL function and arguments
-and return back the SQL given result. Here is where Dynamic Proxy shines.
+The trait and its implementation usually reside in the same place. But what if we want to execute code 
+in another process or dynamically parse function names and parameters to produce results?
+
+Consider a scenario where we need to execute SQL functions. Typically, we create a trait 
+containing all the functions and write code to send parameters and parse results. However, 
+this approach often involves repetitive boilerplate code.
+
+What if we could create a single, general function to construct SQL commands, add parameters, 
+and parse results into Rust types? Imagine calling this function with the SQL function name 
+and its arguments and receiving the corresponding result. This is where Dynamic Proxy shines.
+It enables us to dynamically handle function calls, simplifying our code and reducing redundancy.
+
+
 
 ### Our implementation
 
-Since Rust is a very strict languages, we have nothing like Java/.NEt reflection, or Python double-underscore 'call' 
-method. The only way of implementing something similar is to use powerful procedural macros. They expand prior to 
-compilation into pure Rust code. We have implemented an attribute macro which gets the empty struct name. 
+Rust is known for its strictness, lacking features like Java or .NET's reflection or Python's 
+`__call__` method. To achieve similar functionality, Rust offers powerful procedural macros. 
+These macros expand before compilation into pure Rust code.
+
+In our project, we've implemented an attribute macro that takes the name of an empty struct. 
+This macro enables us to emulate behavior similar to reflection or dynamic method invocation 
+found in other languages.
 
 
 ```rust
