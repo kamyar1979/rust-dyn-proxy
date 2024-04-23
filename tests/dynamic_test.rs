@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod tests {
     use std::any::{Any, TypeId};
-    use dynamic_proxy::dynamic_proxy;
-    use dynamic_proxy::{DynamicProxy, InvocationInfo};
+    use dynamic_proxy::{DynamicProxy, InvocationInfo, dynamic_proxy};
     use std::ops::Deref;
     // use crate::MyTrait;
 

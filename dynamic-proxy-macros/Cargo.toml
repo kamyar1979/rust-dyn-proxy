@@ -11,9 +11,9 @@ path = "../dynamic-proxy-types"
 version = "0.1.0"
 
 [dependencies]
-quote = "1"
-proc-macro2 = "1.0"
-syn = {version= "2.0.57",features=["full","fold"]}
+quote = "1.0.36"
+proc-macro2 = "1.0.81"
+syn = {version= "2.0.60",features=["full","fold"]}
 log = "0.4.21"
-fern = "0.6"
+fern = "0.6.2"
 humantime = "2.1.0"
