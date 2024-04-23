@@ -2,7 +2,7 @@
 mod tests {
     use std::any::{Any, TypeId};
     use dynamic_proxy::dynamic_proxy;
-    use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
+    use dynamic_proxy::{DynamicProxy, InvocationInfo};
     use std::ops::Deref;
     // use crate::MyTrait;
 
