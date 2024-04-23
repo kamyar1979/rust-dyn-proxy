@@ -1,7 +1,8 @@
-[package]authors = ["Kamyar Inanloo <kamyar1979@gmail.com"]
+[package]
+authors = ["Kamyar Inanloo <kamyar1979@gmail.com"]
 description = "Dynamic Proxy Implementation for Rust - Macros"
 homepage = "https://github.com/kamyar1979/rust-dyn-proxy"
-license = "BSD-3"
+license = "Apache-2.0"
 publish = true
 repository = "https://github.com/kamyar1979/rust-dyn-proxy"
 name = "dynamic-proxy-macros"
