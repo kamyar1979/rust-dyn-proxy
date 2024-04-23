@@ -1,7 +1,13 @@
 [package]
+authors = ["Kamyar Inanloo <kamyar1979@gmail.com"]
+description = "Dynamic Proxy Implementation for Rust - Types"
+homepage = "https://github.com/kamyar1979/rust-dyn-proxy"
+license = "BSD-3"
+publish = true
+repository = "https://github.com/kamyar1979/rust-dyn-proxy"
 name = "dynamic-proxy-types"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-syn = "2.0.57"
+syn = "2.0.60"
