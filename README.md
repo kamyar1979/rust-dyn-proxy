@@ -68,12 +68,12 @@ impl DynamicProxy for Interceptor {
     fn call(&self, invocation: &mut InvocationInfo){
         let a = invocation.arg_values[0].downcast_ref::<i32>().unwrap();
         let b = invocation.arg_values[1].downcast_ref::<i32>().unwrap();
-        let result: Box<dyn Any> = match invocation.func_name {
-            "add" => Box::new(a+b),
-            "subtract" => Box::new(a-b),
-            _ => Box::new(0)
-         };
-        invocation.return_value = Some(result);
+        invocation.set_return_value(
+            match invocation.func_name {
+                "add" => a + b,
+                "subtract" => a - b,
+                _ => 0
+            })
     }
 }
 

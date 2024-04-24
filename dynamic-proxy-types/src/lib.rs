@@ -11,3 +11,10 @@ pub struct InvocationInfo<'a> {
 pub trait DynamicProxy {
     fn call(&self, invocation: &mut InvocationInfo);
 }
+
+impl<'a> InvocationInfo<'a> {
+    pub fn set_return_value<T: 'static>(&mut self, val: T) {
+        let result: Box<dyn Any> = Box::new(val);
+        self.return_value = Some(result);
+    }
+}
