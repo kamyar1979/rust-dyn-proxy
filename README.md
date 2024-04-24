@@ -66,8 +66,12 @@ pub struct Interceptor;
 
 impl DynamicProxy for Interceptor {
     fn call(&self, invocation: &mut InvocationInfo){
-        let a = invocation.arg_values[0].downcast_ref::<i32>().unwrap();
-        let b = invocation.arg_values[1].downcast_ref::<i32>().unwrap();
+        let a = invocation.get_arg_value::<i32>(0);
+        let b = invocation.get_arg_value::<i32>(1);
+        assert_eq!(invocation.arg_names[0], "a");
+        assert_eq!(invocation.arg_names[1], "b");
+        assert_eq!(invocation.get_arg_type(1), TypeId::of::<i32>());
+        assert_eq!(invocation.return_type, TypeId::of::<i32>());
         invocation.set_return_value(
             match invocation.func_name {
                 "add" => a + b,

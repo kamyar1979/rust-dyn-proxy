@@ -1,4 +1,5 @@
 use std::any::{Any, TypeId};
+use std::ops::Deref;
 
 pub struct InvocationInfo<'a> {
     pub func_name: &'a str,
@@ -16,5 +17,13 @@ impl<'a> InvocationInfo<'a> {
     pub fn set_return_value<T: 'static>(&mut self, val: T) {
         let result: Box<dyn Any> = Box::new(val);
         self.return_value = Some(result);
+    }
+    
+    pub fn get_arg_value<T: 'static>(&self, index: usize) -> &T {
+        self.arg_values[index].downcast_ref::<T>().unwrap()
+    }
+    
+    pub fn get_arg_type(&self, index: usize) -> TypeId {
+        self.arg_values[index].deref().type_id()
     }
 }
