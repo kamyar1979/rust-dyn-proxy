@@ -15,12 +15,15 @@ pub struct InvocationInfo<'a> {
     pub return_value: Option<Box<dyn Any>>
 }
 
+unsafe impl Send for InvocationInfo<'_> {}
+
 pub trait DynamicProxy {
     fn call(&self, invocation: &mut InvocationInfo);
 }
 
 pub trait AsyncDynamicProxy {
-    fn call_async(&self, invocation: &mut InvocationInfo) -> impl std::future::Future<Output = ()>;
+    fn call_async(&self, invocation: &mut InvocationInfo) 
+        -> impl std::future::Future<Output = ()> + Send;
 }
 
 
