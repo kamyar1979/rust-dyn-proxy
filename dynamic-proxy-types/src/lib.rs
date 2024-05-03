@@ -20,7 +20,7 @@ pub trait DynamicProxy {
 }
 
 pub trait AsyncDynamicProxy {
-    async fn call_async(&self, invocation: &mut InvocationInfo);
+    fn call_async(&self, invocation: &mut InvocationInfo) -> impl std::future::Future<Output = ()>;
 }
 
 

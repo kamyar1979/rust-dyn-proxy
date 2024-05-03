@@ -1,13 +1,10 @@
-use crate::tests::MyTrait;
 
 #[cfg(test)]
 mod tests {
-    use std::any::{Any, TypeId};
+    use std::any::TypeId;
     use dynamic_proxy::{DynamicProxy, InvocationInfo, dynamic_proxy};
     use std::ops::Deref;
     use dynamic_proxy_types::AsyncDynamicProxy;
-    use tokio::spawn;
-    // use crate::MyTrait;
 
     pub struct Interceptor;
 
@@ -27,7 +24,7 @@ mod tests {
                 })
         }
     }
-    
+
     impl AsyncDynamicProxy for Interceptor {
         async fn call_async(&self, invocation: &mut InvocationInfo<'_>) {
             let a = invocation.get_arg_value::<i32>(0);

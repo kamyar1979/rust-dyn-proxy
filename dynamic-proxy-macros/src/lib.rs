@@ -74,7 +74,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     _ => quote!(Any)
                 };
                 let stmt: Vec<Stmt> =
-                    match (is_async)
+                    match is_async
                     {
                         true => syn::parse_quote!(
                     let mut invocation_info = InvocationInfo {
