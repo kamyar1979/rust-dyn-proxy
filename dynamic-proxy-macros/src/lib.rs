@@ -9,7 +9,6 @@ use syn::token::Brace;
 use syn::TraitItem::Fn;
 use syn::Visibility::Inherited;
 use syn::FnArg::Typed;
-// use dynamic_proxy_types::{DynamicProxy, InvocationInfo};
 
 extern crate proc_macro;
 
@@ -57,6 +56,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
             Fn(ti) => {
                 let func = ti.to_owned();
                 let signature = func.sig;
+                let is_async = signature.asyncness.is_some();
                 let func_name = signature.ident.to_string();
                 let args = signature.inputs.iter().filter_map(|a| {
                     match a {
@@ -73,7 +73,21 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     syn::ReturnType::Type(_, t) => t.deref().to_token_stream(),
                     _ => quote!(Any)
                 };
-                let stmt: Vec<Stmt> = syn::parse_quote! (
+                let stmt: Vec<Stmt> =
+                    match (is_async)
+                    {
+                        true => syn::parse_quote!(
+                    let mut invocation_info = InvocationInfo {
+                        func_name: #func_name,
+                        arg_names: &[#(#arg_names),*],
+                        arg_values: &[#(Box::new(#args)),*],
+                        return_type: TypeId::of::<#return_type>(),
+                        return_value: None
+                    };
+                    self.call_async(&mut invocation_info).await;
+                    return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
+                ),
+                        _ => syn::parse_quote!(
                     let mut invocation_info = InvocationInfo {
                         func_name: #func_name,
                         arg_names: &[#(#arg_names),*],
@@ -83,7 +97,8 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     };
                     self.call(&mut invocation_info);
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
-                );
+                )
+                    };
                 Some(ImplItemFn {
                     attrs: func.attrs,
                     vis: Inherited,
@@ -98,7 +113,7 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
             &_ => None
         }
     });
-    
+
     TokenStream::from(quote! {
         #inp
         impl #name for #imp {

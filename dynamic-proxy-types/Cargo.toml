@@ -6,7 +6,7 @@ license = "Apache-2.0"
 publish = true
 repository = "https://github.com/kamyar1979/rust-dyn-proxy"
 name = "dynamic-proxy-types"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 [dependencies]
