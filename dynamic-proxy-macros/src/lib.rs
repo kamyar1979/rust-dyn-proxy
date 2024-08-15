@@ -73,32 +73,31 @@ pub fn dynamic_proxy(_metadata: TokenStream, _input: TokenStream) -> TokenStream
                     syn::ReturnType::Type(_, t) => t.deref().to_token_stream(),
                     _ => quote!(Any)
                 };
-                let stmt: Vec<Stmt> =
+                let invocation_stmt: Vec<Stmt> = syn::parse_quote!(
+                                        let mut invocation_info = InvocationInfo {
+                        func_name: #func_name,
+                        arg_names: &[#(#arg_names),*],
+                        arg_values: &[#(Box::new(#args)),*],
+                        return_type: TypeId::of::<#return_type>(),
+                        return_value: None
+                    };
+                );
+                
+                let call_stmt: Vec<Stmt> =
                     match is_async
                     {
                         true => syn::parse_quote!(
-                    let mut invocation_info = InvocationInfo {
-                        func_name: #func_name,
-                        arg_names: &[#(#arg_names),*],
-                        arg_values: &[#(Box::new(#args)),*],
-                        return_type: TypeId::of::<#return_type>(),
-                        return_value: None
-                    };
                     self.call_async(&mut invocation_info).await;
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
-                ),
+                        ),
                         _ => syn::parse_quote!(
-                    let mut invocation_info = InvocationInfo {
-                        func_name: #func_name,
-                        arg_names: &[#(#arg_names),*],
-                        arg_values: &[#(Box::new(#args)),*],
-                        return_type: TypeId::of::<#return_type>(),
-                        return_value: None
-                    };
                     self.call(&mut invocation_info);
                     return invocation_info.return_value.unwrap().downcast::<#return_type>().unwrap().deref().clone();
-                )
+                        )
                     };
+                
+                let stmt = [invocation_stmt.as_slice(), call_stmt.as_slice()].concat();
+                
                 Some(ImplItemFn {
                     attrs: func.attrs,
                     vis: Inherited,
