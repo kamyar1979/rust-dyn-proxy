@@ -8,6 +8,10 @@ repository = "https://github.com/kamyar1979/rust-dyn-proxy"
 name = "dynamic-proxy"
 version = "0.4.0"
 edition = "2021"
+documentation = "https://docs.rs/dynamic-proxy"
+readme = "README.md"
+keywords = ["proxy", "dynamic", "aop"]
+categories = ["development-tools"]
 
 [dependencies.dynamic-proxy-types]
 path = "dynamic-proxy-types"
