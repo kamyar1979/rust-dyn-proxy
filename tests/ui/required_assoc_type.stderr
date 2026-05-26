@@ -1,0 +1,18 @@
+error: dynamic_proxy does not support required associated types
+ --> tests/ui/required_assoc_type.rs:9:1
+  |
+9 | #[dynamic_proxy(Interceptor)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `dynamic_proxy` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0046]: not all trait items implemented, missing: `Output`
+  --> tests/ui/required_assoc_type.rs:9:1
+   |
+ 9 | #[dynamic_proxy(Interceptor)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing `Output` in implementation
+10 | trait RequiredAssocType {
+11 |     type Output;
+   |     ----------- `Output` from trait
+   |
+   = note: this error originates in the attribute macro `dynamic_proxy` (in Nightly builds, run with -Z macro-backtrace for more info)

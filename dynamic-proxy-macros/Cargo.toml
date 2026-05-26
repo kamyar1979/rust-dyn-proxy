@@ -6,20 +6,13 @@ license = "Apache-2.0"
 publish = true
 repository = "https://github.com/kamyar1979/rust-dyn-proxy"
 name = "dynamic-proxy-macros"
-version = "0.2.0"
+version = "1.0.0"
 edition = "2021"
 
 [lib]
 proc-macro = true
 
-[dependencies.dynamic-proxy-types]
-path = "../dynamic-proxy-types"
-version = "0.5.0"
 
 [dependencies]
 quote = "1.0.36"
-proc-macro2 = "1.0.81"
 syn = {version= "2.0.60",features=["full","fold"]}
-log = "0.4.21"
-fern = "0.6.2"
-humantime = "2.1.0"

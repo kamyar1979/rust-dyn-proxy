@@ -1,0 +1,5 @@
+error: dynamic_proxy does not support borrowed arguments; use owned 'static + Send + Sync arguments
+  --> tests/ui/borrowed_arg.rs:11:26
+   |
+11 |     fn call(self, value: &str);
+   |                          ^^^^

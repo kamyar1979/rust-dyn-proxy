@@ -1,0 +1,11 @@
+error: dynamic_proxy only supports identifier arguments
+  --> tests/ui/non_identifier_arg.rs:11:19
+   |
+11 |     fn call(self, (a, b): (i32, i32));
+   |                   ^^^^^^
+
+error[E0642]: patterns aren't allowed in functions without bodies
+  --> tests/ui/non_identifier_arg.rs:11:19
+   |
+11 |     fn call(self, (a, b): (i32, i32));
+   |                   ^^^^^^ pattern not allowed in function without body
