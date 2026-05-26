@@ -10,4 +10,3 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-syn = "2.0.60"

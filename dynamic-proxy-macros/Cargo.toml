@@ -12,11 +12,7 @@ edition = "2021"
 [lib]
 proc-macro = true
 
-[dependencies.dynamic-proxy-types]
-path = "../dynamic-proxy-types"
-version = "0.5.0"
 
 [dependencies]
 quote = "1.0.36"
-proc-macro2 = "1.0.81"
 syn = {version= "2.0.60",features=["full","fold"]}
