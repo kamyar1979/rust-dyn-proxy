@@ -1,0 +1,18 @@
+error: dynamic_proxy does not support required associated constants
+ --> tests/ui/required_assoc_const.rs:9:1
+  |
+9 | #[dynamic_proxy(Interceptor)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `dynamic_proxy` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0046]: not all trait items implemented, missing: `NAME`
+  --> tests/ui/required_assoc_const.rs:9:1
+   |
+ 9 | #[dynamic_proxy(Interceptor)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing `NAME` in implementation
+10 | trait RequiredAssocConst {
+11 |     const NAME: &'static str;
+   |     ------------------------ `NAME` from trait
+   |
+   = note: this error originates in the attribute macro `dynamic_proxy` (in Nightly builds, run with -Z macro-backtrace for more info)

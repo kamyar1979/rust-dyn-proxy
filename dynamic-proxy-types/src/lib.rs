@@ -8,14 +8,12 @@ pub struct InvocationInfo<'a> {
     /// Array containig the name of input arguments
     pub arg_names: &'a[&'a str],
     /// Array containing the values of the arguments as boxed dynamic value.
-    pub arg_values: &'a [Box<dyn Any>],
+    pub arg_values: &'a [Box<dyn Any + Send + Sync>],
     /// Type id of the function result
     pub return_type: TypeId,
     /// The interceptor must set this value if the function has result
-    pub return_value: Option<Box<dyn Any>>
+    pub return_value: Option<Box<dyn Any + Send + Sync>>
 }
-
-unsafe impl Send for InvocationInfo<'_> {}
 
 pub trait DynamicProxy {
     fn call(&self, invocation: &mut InvocationInfo);
@@ -29,8 +27,8 @@ pub trait AsyncDynamicProxy {
 
 impl<'a> InvocationInfo<'a> {
     
-    pub fn set_return_value<T: 'static>(&mut self, val: T) {
-        let result: Box<dyn Any> = Box::new(val);
+    pub fn set_return_value<T: 'static + Send + Sync>(&mut self, val: T) {
+        let result: Box<dyn Any + Send + Sync> = Box::new(val);
         self.return_value = Some(result);
     }
     

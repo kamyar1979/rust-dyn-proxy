@@ -1,0 +1,43 @@
+error: dynamic_proxy does not support borrowed return values; use owned 'static + Send + Sync return values
+  --> tests/ui/borrowed_return.rs:11:37
+   |
+11 |     fn call(self, value: String) -> &str;
+   |                                     ^^^^
+
+error[E0106]: missing lifetime specifier
+  --> tests/ui/borrowed_return.rs:11:37
+   |
+11 |     fn call(self, value: String) -> &str;
+   |                                     ^ expected named lifetime parameter
+   |
+   = help: this function's return type contains a borrowed value, but there is no value for it to be borrowed from
+help: consider using the `'static` lifetime, but this is uncommon unless you're returning a borrowed value from a `const` or a `static`
+   |
+11 |     fn call(self, value: String) -> &'static str;
+   |                                      +++++++
+help: instead, you are more likely to want to return an owned value
+   |
+11 -     fn call(self, value: String) -> &str;
+11 +     fn call(self, value: String) -> str;
+   |
+
+error[E0106]: missing lifetime specifier
+  --> tests/ui/borrowed_return.rs:11:37
+   |
+11 |     fn call(self, value: String) -> &str;
+   |                                     ^ expected named lifetime parameter
+   |
+   = help: this function's return type contains a borrowed value, but there is no value for it to be borrowed from
+help: consider using the `'static` lifetime, but this is uncommon unless you're returning a borrowed value from a `const` or a `static`
+   |
+11 |     fn call(self, value: String) -> &'static str;
+   |                                      +++++++
+help: instead, you are more likely to want to change one of the arguments to be borrowed...
+   |
+11 |     fn call(&self, value: &String) -> &str;
+   |             +             +
+help: ...or alternatively, you might want to return an owned value
+   |
+11 -     fn call(self, value: String) -> &str;
+11 +     fn call(self, value: String) -> String;
+   |
